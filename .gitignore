@@ -3,6 +3,8 @@
 **/__pycache__/
 **/results/
 **/cnn_dm-bin/
+**/bart.large.cnn/
+**/bart.large/
 *.bin
 *.tar.gz
 *.jsonl
