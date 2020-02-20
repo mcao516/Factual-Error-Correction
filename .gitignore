@@ -5,6 +5,7 @@
 **/cnn_dm-bin/
 **/bart.large.cnn/
 **/bart.large/
+**/nohup.out
 *.bin
 *.tar.gz
 *.jsonl
