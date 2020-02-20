@@ -1,2 +1,11 @@
-datasets/
 **/.vscode/
+**/.ipynb_checkpoints/
+**/__pycache__/
+**/results/
+**/cnn_dm-bin/
+*.bin
+*.tar.gz
+*.jsonl
+*.source
+*.target
+*.data

@@ -1,0 +1,2 @@
+set GOOGLE_APPLICATION_CREDENTIALS=Leaders-Prize-Competition-68f0e23410a0.json
+python create_data.py test_samples.jsonl --all_augmentations

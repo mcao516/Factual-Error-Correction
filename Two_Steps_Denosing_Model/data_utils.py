@@ -84,28 +84,28 @@ class Processor(object):
     def get_train_examples(self, data_dir):
         """See base class."""
         return self._create_examples(
-            os.path.join(data_dir, "train.pkl"), "train")
+            os.path.join(data_dir, "train.jsonl"), "train")
 
     def get_dev_examples(self, data_dir):
         """See base class."""
         return self._create_examples(
-            os.path.join(data_dir, "val.pkl"), "dev")
+            os.path.join(data_dir, "val.jsonl"), "dev")
 
     def get_test_examples(self, data_dir):
         """See base class."""
         return self._create_examples(
-            os.path.join(data_dir, "test.pkl"), "test")
+            os.path.join(data_dir, "test.jsonl"), "test")
 
-    def _create_examples(self, path, set_type):
+    def _create_examples(self, file_path, set_type):
         """Creates examples for the training and dev sets."""
-        with open(path, 'rb') as handle:
-            metadata = pickle.load(handle)
+        with open(file_path, 'r', encoding="utf-8") as f:
+            data = [json.loads(line) for line in f]
 
         examples = []
-        for i, m in enumerate(metadata):
-            guid = set_type + '-' + str(i)
+        for i, d in enumerate(data):
+            guid = d['id']
             # text_a: story, text_b: noisy_summary, label: summary
-            text_a, text_b, label = m[0], m[2], m[1]
+            text_a, text_b, label = d['text'], d['claim'], d['summary']
             examples.append(
                 InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
         return examples
@@ -118,15 +118,13 @@ def load_and_cache_examples(args, tokenizer, evaluate=False):
 
     processor = Processor()
     # Load data features from cache or dataset file
-    cached_features_file = os.path.join(args.data_dir, 'cached_{}_{}_{}_{}'.format(
+    cached_features_file = os.path.join(args.data_dir, 'cached_{}_{}_{}'.format(
         'dev' if evaluate else 'train',
         args.model_type,
-        str(args.max_seq_length),
         str(args.max_summary_length)))
-    cached_guids_file = os.path.join(args.data_dir, 'cached_{}_{}_{}_{}_guids'.format(
+    cached_guids_file = os.path.join(args.data_dir, 'cached_{}_{}_{}_guids'.format(
         'dev' if evaluate else 'train',
         args.model_type,
-        str(args.max_seq_length),
         str(args.max_summary_length)))
 
     if os.path.exists(cached_features_file) and not args.overwrite_cache:
@@ -140,26 +138,31 @@ def load_and_cache_examples(args, tokenizer, evaluate=False):
             else processor.get_train_examples(args.data_dir)
 
         pad_token_id = tokenizer.convert_tokens_to_ids([tokenizer.pad_token])[0]
-        story_features, guids = convert_inputs_to_features(examples, tokenizer,
-                                                           summary=False,
-                                                           max_length=args.max_story_length,
-                                                           pad_on_left=False,
-                                                           pad_token=pad_token_id,
-                                                           pad_token_segment_id=0)
+        # story_features, guids = convert_inputs_to_features(examples, tokenizer,
+        #                                                    summary=False,
+        #                                                    max_length=args.max_story_length,
+        #                                                    pad_on_left=False,
+        #                                                    pad_token=pad_token_id,
+        #                                                    pad_token_segment_id=0)
 
-        summary_features, _ = convert_inputs_to_features(examples, tokenizer,
-                                                         summary=True,
-                                                         max_length=args.max_summary_length,
-                                                         pad_on_left=False,
-                                                         pad_token=pad_token_id,
-                                                         pad_token_segment_id=0)
+        # summary_features, _ = convert_inputs_to_features(examples, tokenizer,
+        #                                                  summary=True,
+        #                                                  max_length=args.max_summary_length,
+        #                                                  pad_on_left=False,
+        #                                                  pad_token=pad_token_id,
+        #                                                  pad_token_segment_id=0)
+
+        text_features, guids = convert_text_and_summary(examples, tokenizer,
+                                                        pad_on_left=False,
+                                                        pad_token=pad_token_id,
+                                                        pad_token_segment_id=0)
 
         src_ids, tgt_ids = convert_outputs_to_features(examples, tokenizer,
                                                        max_length=args.max_summary_length,
                                                        pad_on_left=False,
                                                        pad_token=pad_token_id,
                                                        pad_token_segment_id=0)
-        features = [story_features, summary_features, src_ids, tgt_ids]
+        features = [text_features, src_ids, tgt_ids]
 
         if args.local_rank in [-1, 0]:
             args.logger.info("Saving features into cached file %s", cached_features_file)
@@ -170,24 +173,34 @@ def load_and_cache_examples(args, tokenizer, evaluate=False):
     if args.local_rank == 0 and not evaluate:
         torch.distributed.barrier()
 
-    story_features, summary_features, src_ids, tgt_ids = features
-    # Convert to Tensors and build dataset
-    story_ids = torch.tensor([f.input_ids for f in story_features], dtype=torch.long)
-    story_attention_mask = torch.tensor([f.attention_mask for f in story_features], dtype=torch.long)
-    story_token_type_ids = torch.tensor([f.token_type_ids for f in story_features], dtype=torch.long)
+    # story_features, summary_features, src_ids, tgt_ids = features
+    text_features, src_ids, tgt_ids = features
 
-    summary_ids = torch.tensor([f.input_ids for f in summary_features], dtype=torch.long)
-    summary_attention_mask = torch.tensor([f.attention_mask for f in summary_features], dtype=torch.long)
-    summary_token_type_ids = torch.tensor([f.token_type_ids for f in summary_features], dtype=torch.long)
+    # Convert to Tensors and build dataset
+    text_ids = torch.tensor([f.input_ids for f in text_features], dtype=torch.long)
+    text_attention_mask = torch.tensor([f.attention_mask for f in text_features], dtype=torch.long)
+    text_token_type_ids = torch.tensor([f.token_type_ids for f in text_features], dtype=torch.long)
+
+    # story_ids = torch.tensor([f.input_ids for f in story_features], dtype=torch.long)
+    # story_attention_mask = torch.tensor([f.attention_mask for f in story_features], dtype=torch.long)
+    # story_token_type_ids = torch.tensor([f.token_type_ids for f in story_features], dtype=torch.long)
+
+    # summary_ids = torch.tensor([f.input_ids for f in summary_features], dtype=torch.long)
+    # summary_attention_mask = torch.tensor([f.attention_mask for f in summary_features], dtype=torch.long)
+    # summary_token_type_ids = torch.tensor([f.token_type_ids for f in summary_features], dtype=torch.long)
 
     src_ids = torch.tensor([f.input_ids for f in src_ids], dtype=torch.long)
     tgt_ids = torch.tensor([f.input_ids for f in tgt_ids], dtype=torch.long)
     src_attention_mask = torch.tensor([f.attention_mask for f in src_ids], dtype=torch.long)
     src_token_type_ids = torch.tensor([f.token_type_ids for f in src_ids], dtype=torch.long)
 
-    dataset = TensorDataset(story_ids, story_attention_mask, story_token_type_ids,
-                            summary_ids, summary_attention_mask, summary_token_type_ids
+    # dataset = TensorDataset(story_ids, story_attention_mask, story_token_type_ids,
+    #                         summary_ids, summary_attention_mask, summary_token_type_ids
+    #                         src_ids, tgt_ids, src_attention_mask, src_token_type_ids)
+
+    dataset = TensorDataset(text_ids, text_attention_mask, text_token_type_ids,
                             src_ids, tgt_ids, src_attention_mask, src_token_type_ids)
+
     return dataset, guids
 
 
@@ -345,7 +358,81 @@ def convert_inputs_to_features(examples, tokenizer,
         #     print("token_type_ids: %s" % " ".join([str(x) for x in token_type_ids]))
 
         guids.append(example.guid)
-        features.append(InputFeatures(input_ids=input_ids,
-                                      attention_mask=attention_mask,
+        features.append(InputFeatures(input_ids=input_ids, attention_mask=attention_mask,
+                                      token_type_ids=token_type_ids))
+    return features, guids
+
+
+def convert_text_and_summary(examples, tokenizer,
+                             max_length=512,
+                             pad_on_left=False,
+                             pad_token=0,
+                             pad_token_segment_id=0,
+                             mask_padding_with_zero=True):
+    """
+    Loads a data file into a list of ``InputFeatures``
+
+    Args:
+        examples: List of ``InputExamples`` or ``tf.data.Dataset`` containing the examples.
+        tokenizer: Instance of a tokenizer that will tokenize the examples.
+        max_length: Maximum example length
+        pad_on_left: If set to ``True``, the examples will be padded on the left rather than on the right (default)
+        pad_token: Padding token
+        pad_token_segment_id: The segment ID for the padding token (It is usually 0, but can vary such as for XLNet
+            where it is 4)
+        mask_padding_with_zero: If set to ``True``, the attention mask will be filled by ``1`` for actual values
+            and by ``0`` for padded values. If set to ``False``, inverts it (``1`` for padded values, ``0`` for
+            actual values)
+
+    Returns:
+        If the ``examples`` input is a ``tf.data.Dataset``, will return a ``tf.data.Dataset``
+        containing the task-specific features. If the input is a list of ``InputExamples``, will return
+        a list of task-specific ``InputFeatures`` which can be fed to the model.
+
+    """
+    features, guids = [], []
+    for ex_index, example in enumerate(examples):
+        text, summary = example.text_a, example.text_b
+
+        text_ = tokenzie(tokenizer, text, 400, False)
+        text_ids, text_token_type_ids = text_["input_ids"], text_["token_type_ids"]
+
+        summary_ = tokenzie(tokenizer, summary, 100, False)
+        summary_ids, summary_token_type_ids = summary_["input_ids"], summary_["token_type_ids"]
+
+        sep_token_id = tokenizer.sep_token_id
+        input_ids = summary_ids + [sep_token_id] + text_ids + [sep_token_id]
+        token_type_ids = summary_token_type_ids + [0] + text_token_type_ids + [0]
+
+        # The mask has 1 for real tokens and 0 for padding tokens. Only real tokens are attended to.
+        attention_mask = [1 if mask_padding_with_zero else 0] * len(input_ids)
+
+        # Zero-pad up to the sequence length.
+        padding_length = max_length - len(input_ids)
+        if pad_on_left:
+            input_ids = ([pad_token] * padding_length) + input_ids
+            attention_mask = ([0 if mask_padding_with_zero else 1] * padding_length) + attention_mask
+            token_type_ids = ([pad_token_segment_id] * padding_length) + token_type_ids
+        else:
+            input_ids = input_ids + ([pad_token] * padding_length)
+            attention_mask = attention_mask + ([0 if mask_padding_with_zero else 1] * padding_length)
+            token_type_ids = token_type_ids + ([pad_token_segment_id] * padding_length)
+
+        assert len(input_ids) == max_length, \
+            "Error with input length {} vs {}".format(len(input_ids), max_length)
+        assert len(attention_mask) == max_length, \
+            "Error with input length {} vs {}".format(len(attention_mask), max_length)
+        assert len(token_type_ids) == max_length, \
+            "Error with input length {} vs {}".format(len(token_type_ids), max_length)
+
+        # if ex_index < 5:
+        #     print("*** Example ***")
+        #     print("guid: %s" % (example.guid))
+        #     print("input_ids: %s" % " ".join([str(x) for x in input_ids]))
+        #     print("attention_mask: %s" % " ".join([str(x) for x in attention_mask]))
+        #     print("token_type_ids: %s" % " ".join([str(x) for x in token_type_ids]))
+
+        guids.append(example.guid)
+        features.append(InputFeatures(input_ids=input_ids, attention_mask=attention_mask,
                                       token_type_ids=token_type_ids))
     return features, guids
