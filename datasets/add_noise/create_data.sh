@@ -5,7 +5,7 @@
 #SBATCH --mem=32G                        # Ask for 32 GB of RAM
 #SBATCH --time=3:00:00                   # The job will run for 3 hours
 #SBATCH -o /scratch/<user>/slurm-%j.out  # Write the log in $SCRATCH
-FILE_TYPE=sample
+FILE_TYPE=train
 
 # 1. Create your environement locally
 module load miniconda3

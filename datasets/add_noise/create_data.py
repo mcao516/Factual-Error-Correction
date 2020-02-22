@@ -110,13 +110,15 @@ def main(args):
         if args.save_intermediate:
             save_data(args, data_btrans, "btrans")
 
-    # save original & translation data
-    data_positive = data + data_btrans
-    if args.save_ensemble:
-        print("- Positive %s example pairs." % len(data_positive))
-        save_data(args, data_positive, "positive")
+        data_positive = data_btrans
+    else:
+        data_positive = data
 
-    # data_positive = data_btrans
+    # save original & translation data
+    # data_positive = data + data_btrans
+    # if args.save_ensemble:
+    #     print("- Positive %s example pairs." % len(data_positive))
+    #     save_data(args, data_positive, "positive")
 
     # create negative examples
     data_pronoun = []
