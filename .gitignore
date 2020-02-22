@@ -6,6 +6,7 @@
 **/bart.large.cnn/
 **/bart.large/
 **/nohup.out
+**/*.hypo
 *.bin
 *.tar.gz
 *.jsonl
