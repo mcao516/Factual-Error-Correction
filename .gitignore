@@ -7,6 +7,7 @@
 **/bart.large/
 **/nohup.out
 **/*.hypo
+**/cnn_dm-bin.zip
 *.bin
 *.tar.gz
 *.jsonl
