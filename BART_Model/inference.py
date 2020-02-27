@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import argparse
 from fairseq.models.bart import BARTModel
 
@@ -16,9 +17,8 @@ def main(args):
     bart.cuda()
     bart.eval()
     bart.half()
-    bart.model = nn.DataParallel(bart.model)
     count = 1
-    bsz = 16
+    bsz = 32
 
     print('- batch size: {}'.format(bsz))
 
@@ -36,6 +36,8 @@ def main(args):
 
             slines.append(sline.strip())
             count += 1
+            if count % 100 == 0:
+                print(count)
 
         if slines != []:
             hypotheses_batch = bart.sample(slines, beam=4, lenpen=2.0, max_len_b=140, min_len=55, no_repeat_ngram_size=3)
