@@ -1,21 +1,30 @@
 import torch
 from fairseq.models.bart import BARTModel
 
+MODEL_PATH='~/scratch/BART_models/checkpoints_iter'
+DATA_PATH='~/scratch/summarization/cnn_dm/iterative_files/cnn_dm-bin/'
+
+
 bart = BARTModel.from_pretrained(
-    'bart.large.cnn/',
-    checkpoint_file='model.pt'
+    MODEL_PATH,
+    checkpoint_file='checkpoint_best.pt',
+    data_name_or_path=DATA_PATH
 )
+print('- model loaded.')
 
 bart.cuda()
 bart.eval()
 bart.half()
+bart.model = nn.DataParallel(bart.model)
 count = 1
 bsz = 16
 
-source_file = '/home/cadenc9020/Two-Steps-Summarization/datasets/cnn_dm/fairseq_files/train.source'
-# target_file = '/home/cadenc9020/Two-Steps-Summarization/datasets/cnn_dm/fairseq_files/test.target'
+print('- batch size: {}'.format(bsz))
 
-with open(source_file) as source, open('train_preds.hypo', 'w') as fout:
+TEST_PATH='~/scratch/summarization/cnn_dm/iterative_files/test.source'
+OUTPUT_FILE='iter_preds.hypo'
+
+with open(source_file) as source, open(OUTPUT_FILE, 'w') as fout:
     sline = source.readline().strip()
     slines = [sline]
     for sline in source:
