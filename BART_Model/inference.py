@@ -1,15 +1,19 @@
 import torch
 import torch.nn as nn
 import argparse
+
+from tqdm import tqdm
 from fairseq.models.bart import BARTModel
 
 
 def main(args):
-    print(args.checkpoint_path)
-    print(args.data_path)
+    print("- checkpoint path: {}".format(args.checkpoint_path))
+    print("- checkpoint type: {}".format(args.checkpoint_type))
+    print("- data name or path: {}".format(args.data_path))
+
     bart = BARTModel.from_pretrained(
         args.checkpoint_path,
-        checkpoint_file='checkpoint_best.pt',
+        checkpoint_file=args.checkpoint_type,
         data_name_or_path=args.data_path
     )
     print('- model loaded.')
@@ -17,15 +21,20 @@ def main(args):
     bart.cuda()
     bart.eval()
     bart.half()
-    count = 1
-    bsz = 32
 
-    print('- batch size: {}'.format(bsz))
+    print('- read test data from: {}'.format(args.test_path))
+    data = []
+    with open(args.test_path) as source:
+        for line in source:
+            data.append(line.strip())
+    print('- total data: {}'.format(len(data)))
+    print('- sample: \n{}\n'.format(data[0]))
 
-    with open(args.test_path) as source, open(args.output_file, 'w') as fout:
-        sline = source.readline().strip()
-        slines = [sline]
-        for sline in source:
+    count, bsz = 1, 32
+    print('- start inference (batch size = {}):'.format(bsz))
+    with open(args.output_file, 'w') as fout:
+        slines = [data[0]]
+        for sline in tqdm(data):
             if count % bsz == 0:
                 with torch.no_grad():
                     hypotheses_batch = bart.sample(slines, beam=4, lenpen=2.0, max_len_b=140, min_len=55, no_repeat_ngram_size=3)
@@ -36,8 +45,6 @@ def main(args):
 
             slines.append(sline.strip())
             count += 1
-            if count % 100 == 0:
-                print(count)
 
         if slines != []:
             hypotheses_batch = bart.sample(slines, beam=4, lenpen=2.0, max_len_b=140, min_len=55, no_repeat_ngram_size=3)
@@ -45,16 +52,14 @@ def main(args):
                 fout.write(hypothesis + '\n')
                 fout.flush()
 
-    # DATA_PATH='~/scratch/summarization/cnn_dm/iterative_files/cnn_dm-bin/'
-    # MODEL_PATH='~/scratch/BART_models/checkpoints_iter'
-    # TEST_PATH='~/scratch/summarization/cnn_dm/iterative_files/test.source'
-
+# python inference.py --checkpoint_path ~/scratch/BART_models/checkpoints_iter --checkpoint_type checkpoint1.pt --data_path ~/scratch/summarization/cnn_dm/iterative_files/cnn_dm-bin/ --test_path ~/scratch/summarization/cnn_dm/iterative_files/test.source --output_file preds/iter_preds_cp1.hypo
 
 if __name__ == "__main__":
     PARSER = argparse.ArgumentParser()
     PARSER.add_argument("--checkpoint_path", type=str, help="checkpoint directory.")
-    PARSER.add_argument("--data_path", type=str, help="train, val or test.")
-    PARSER.add_argument("--test_path", type=str, help="train, val or test.")
-    PARSER.add_argument("--output_file", type=str, default='test.hypo', help="train, val or test.")
+    PARSER.add_argument("--checkpoint_type", type=str, default='checkpoint_best.pt', help="checkpoint type to use")
+    PARSER.add_argument("--data_path", type=str, help="cnn_dm-bin in training dataset.")
+    PARSER.add_argument("--test_path", type=str, help="test source data")
+    PARSER.add_argument("--output_file", type=str, default='test.hypo', help="output file.")
     ARGS = PARSER.parse_args()
     main(ARGS)

@@ -1,7 +1,7 @@
 import rouge
 import nltk
 
-nltk.download('punkt')
+# nltk.download('punkt')
 
 pred_file_path = 'iter_preds.hypo'
 tgt_file_path = '/home/mcao610/scratch/summarization/cnn_dm/iterative_files/test.target'
