@@ -32,18 +32,20 @@ def ctype_sampler_2(data):
     return samples
 
 
-def create_training_data(data_dict, source_file, target_file, corruption_types, duplicate=False):
+def create_training_data(data_dict, source_file, target_file, metadata_file, corruption_types, duplicate=False):
     """Create training data. Half clean summaries and half sampling from other types.
 
     Arguments:
         data_dict -- {id: {'text': '', 'clean': '', 'numswp': ''}}
         source_file -- str, source file path
         target_file -- str, target file path
+        metadata_file -- str, metadata file path
         corruption_types -- list of types
     """
     sampled_type_counts = {t: 0 for t in corruption_types}
 
-    with open(source_file, 'w', encoding='utf-8') as sf, open(target_file, 'w', encoding='utf-8') as tf:
+    with open(source_file, 'w', encoding='utf-8') as sf, open(target_file, 'w', encoding='utf-8') as tf, \
+        open(metadata_file, 'w', encoding='utf-8') as mf:
         for id in data_dict:
             doc_text = data_dict[id]['text']
             summary = data_dict[id]['clean']
@@ -58,9 +60,11 @@ def create_training_data(data_dict, source_file, target_file, corruption_types, 
                 sampled_type_counts[st] += 1
 
                 sf.write(corrputed + ' {} '.format(SEP_TOKEN) + doc_text + '\n')
-                sf.flush()
                 tf.write(summary + '\n')
+                mf.write(json.dumps({"id": id, "ctype": st}, ensure_ascii=False) + '\n')
+                sf.flush()
                 tf.flush()
+                mf.flush()
 
     print('Created dataset:')
     print(sampled_type_counts)
@@ -96,17 +100,18 @@ def main(args):
     print(type_counts)
 
     if args.duplicate:
-        create_training_data(data_dict, args.source_fout, args.target_fout, corruption_types, True)
+        create_training_data(data_dict, args.source_fout, args.target_fout, args.metadata_fout, corruption_types, True)
     else:
-        create_training_data(data_dict, args.source_fout, args.target_fout, corruption_types, False)
+        create_training_data(data_dict, args.source_fout, args.target_fout, args.metadata_fout, corruption_types, False)
 
 
 if __name__ == "__main__":
     PARSER = argparse.ArgumentParser()
-    PARSER.add_argument("--data_type", type=str, help="train, val or test.")
-    PARSER.add_argument("--corruption_types", type=str, nargs="+", default=(), help="")
-    PARSER.add_argument("--source_fout", type=str, help="")
-    PARSER.add_argument("--target_fout", type=str, help="")
+    PARSER.add_argument("--data_type", type=str, help="train, val, test or sample.")
+    PARSER.add_argument("--corruption_types", type=str, nargs="+", default=(), help="types of correction used.")
+    PARSER.add_argument("--source_fout", type=str, help="source file: corrupted summary & source document.")
+    PARSER.add_argument("--target_fout", type=str, help="target file: reference summary.")
+    PARSER.add_argument("--metadata_fout", type=str, help="metadata file: corruption information.")
     PARSER.add_argument('--duplicate', action='store_true')
 
     # clean dateswp entswp negation numswp pronoun
