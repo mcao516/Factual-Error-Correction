@@ -30,12 +30,12 @@ def main(args):
     print('- total data: {}'.format(len(data)))
     print('- sample: \n{}\n'.format(data[0]))
 
-    count, bsz = 1, 32
-    print('- start inference (batch size = {}):'.format(bsz))
+    count = 1
+    print('- start inference (batch size = {}):'.format(args.batch_size))
     with open(args.output_file, 'w') as fout:
         slines = [data[0]]
-        for sline in tqdm(data):
-            if count % bsz == 0:
+        for sline in tqdm(data[1:]):
+            if count % args.batch_size == 0:
                 with torch.no_grad():
                     hypotheses_batch = bart.sample(slines, beam=4, lenpen=2.0, max_len_b=140, min_len=55, no_repeat_ngram_size=3)
                 for hypothesis in hypotheses_batch:
@@ -43,7 +43,7 @@ def main(args):
                     fout.flush()
                 slines = []
 
-            slines.append(sline.strip())
+            slines.append(sline)
             count += 1
 
         if slines != []:
@@ -52,7 +52,7 @@ def main(args):
                 fout.write(hypothesis + '\n')
                 fout.flush()
 
-# python inference.py --checkpoint_path ~/scratch/BART_models/checkpoints_iter --checkpoint_type checkpoint1.pt --data_path ~/scratch/summarization/cnn_dm/iterative_files/cnn_dm-bin/ --test_path ~/scratch/summarization/cnn_dm/iterative_files/test.source --output_file preds/iter_preds_cp1.hypo
+# python inference.py --checkpoint_path ~/scratch/BART_models/checkpoints_iter --checkpoint_type checkpoint1.pt --data_path ~/scratch/summarization/cnn_dm/iterative_files/cnn_dm-bin/ --test_path ~/scratch/summarization/cnn_dm/iterative_files/test.source --output_file preds/iter_preds_cp1.hypo --batch_size 64
 
 if __name__ == "__main__":
     PARSER = argparse.ArgumentParser()
@@ -61,5 +61,6 @@ if __name__ == "__main__":
     PARSER.add_argument("--data_path", type=str, help="cnn_dm-bin in training dataset.")
     PARSER.add_argument("--test_path", type=str, help="test source data")
     PARSER.add_argument("--output_file", type=str, default='test.hypo', help="output file.")
+    PARSER.add_argument("--batch_size", type=int, default=32, help="batch size.")
     ARGS = PARSER.parse_args()
     main(ARGS)

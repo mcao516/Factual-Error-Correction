@@ -3,7 +3,7 @@ import nltk
 
 # nltk.download('punkt')
 
-pred_file_path = 'iter_preds.hypo'
+pred_file_path = 'preds/test_preds.hypo'
 tgt_file_path = '/home/mcao610/scratch/summarization/cnn_dm/iterative_files/test.target'
 
 with open(pred_file_path) as pf, open(tgt_file_path) as tf:
