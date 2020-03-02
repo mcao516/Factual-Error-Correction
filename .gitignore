@@ -14,3 +14,4 @@
 *.source
 *.target
 *.data
+datasets/cnn_dm/stories/*
