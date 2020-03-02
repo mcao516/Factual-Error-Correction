@@ -37,7 +37,7 @@ def main(args):
         for sline in tqdm(data[1:]):
             if count % args.batch_size == 0:
                 with torch.no_grad():
-                    hypotheses_batch = bart.sample(slines, beam=4, lenpen=2.0, max_len_b=140, min_len=55, no_repeat_ngram_size=3)
+                    hypotheses_batch = bart.sample(slines, beam=4, lenpen=2.0, max_len_b=args.max_len, min_len=args.min_len, no_repeat_ngram_size=3)
                 for hypothesis in hypotheses_batch:
                     fout.write(hypothesis + '\n')
                     fout.flush()
@@ -47,7 +47,7 @@ def main(args):
             count += 1
 
         if slines != []:
-            hypotheses_batch = bart.sample(slines, beam=4, lenpen=2.0, max_len_b=140, min_len=55, no_repeat_ngram_size=3)
+            hypotheses_batch = bart.sample(slines, beam=4, lenpen=2.0, max_len_b=args.max_len, min_len=args.min_len, no_repeat_ngram_size=3)
             for hypothesis in hypotheses_batch:
                 fout.write(hypothesis + '\n')
                 fout.flush()
@@ -62,5 +62,7 @@ if __name__ == "__main__":
     PARSER.add_argument("--test_path", type=str, help="test source data")
     PARSER.add_argument("--output_file", type=str, default='test.hypo', help="output file.")
     PARSER.add_argument("--batch_size", type=int, default=32, help="batch size.")
+    PARSER.add_argument("--max_len", type=int, default=140, help="max summary length.")
+    PARSER.add_argument("--min_len", type=int, default=55, help="min summary length.")
     ARGS = PARSER.parse_args()
     main(ARGS)
