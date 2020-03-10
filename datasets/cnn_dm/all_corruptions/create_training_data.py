@@ -48,7 +48,7 @@ def create_training_data(data_dict, source_file, target_file, metadata_file, cor
         open(metadata_file, 'w', encoding='utf-8') as mf:
         for id in data_dict:
             doc_text = data_dict[id]['text']
-            summary = data_dict[id]['clean']
+            summary = data_dict[id]['clean']['claim']
 
             if duplicate:
                 sampled_types = ctype_sampler_2(data_dict[id])
@@ -56,12 +56,12 @@ def create_training_data(data_dict, source_file, target_file, metadata_file, cor
                 sampled_types = ctype_sampler_1(data_dict[id])
 
             for st in sampled_types:
-                corrputed = data_dict[id][st]
+                corrputed = data_dict[id][st]['claim']
                 sampled_type_counts[st] += 1
 
                 sf.write(corrputed + ' {} '.format(SEP_TOKEN) + doc_text + '\n')
                 tf.write(summary + '\n')
-                mf.write(json.dumps({"id": id, "ctype": st}, ensure_ascii=False) + '\n')
+                mf.write(json.dumps(data_dict[id][st], ensure_ascii=False) + '\n')
                 sf.flush()
                 tf.flush()
                 mf.flush()
@@ -71,8 +71,26 @@ def create_training_data(data_dict, source_file, target_file, metadata_file, cor
 
 
 def read_data(file_type, corruption_types):
+    """
+    Arguments:
+        file_type {[type]} -- [description]
+        corruption_types {[type]} -- [description]
+
+    Returns:
+        data_dict -- {
+            "1": {
+                'text': ###,
+                'dataswp': {'claim': ###, 'label': 'INCORRECT', 'augmentation_span': [37, 38], ...},
+                'numswp': {'claim': ###, 'label': 'CORRECT', 'augmentation_span': [37, 38], ...},
+                'pronoun': {'claim': ###, 'label': 'CORRECT', 'augmentation_span': [37, 38], ...},
+                'clean': {'claim': ###, 'label': 'CORRECT', 'augmentation_span': [37, 38], ...}
+            },
+            "2": ...
+        }
+    """
     # read corruption data
     data_dict, type_counts = {}, {t: 0 for t in corruption_types}
+    duplicate_items = ['text', 'summary', 'id', 'extraction_span']
     for ct in corruption_types:
         print('- read {} data'.format(ct))
         ct_file_path = file_type + '-' + ct + '.jsonl'
@@ -82,7 +100,7 @@ def read_data(file_type, corruption_types):
                 if d["id"] not in data_dict:
                     data_dict[d["id"]] = {}
                     data_dict[d["id"]]['text'] = d["text"]
-                data_dict[d["id"]][ct] = d["claim"]
+                data_dict[d["id"]][ct] = {k: v for k, v in d.items() if k not in duplicate_items}
                 type_counts[ct] += 1
 
     return data_dict, type_counts
