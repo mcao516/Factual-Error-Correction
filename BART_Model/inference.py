@@ -38,7 +38,7 @@ def main(args):
             if count % args.batch_size == 0:
                 with torch.no_grad():
                     hypotheses_batch = bart.sample(slines,
-                                                   beam=args.beam_size, lenpen=2.0, 
+                                                   beam=args.beam_size, lenpen=args.lenpen, 
                                                    max_len_b=args.max_len, min_len=args.min_len,
                                                    no_repeat_ngram_size=3)
                 for hypothesis in hypotheses_batch:
@@ -51,7 +51,7 @@ def main(args):
 
         if slines != []:
             hypotheses_batch = bart.sample(slines,
-                                           beam=args.beam_size, lenpen=2.0,
+                                           beam=args.beam_size, lenpen=args.lenpen,
                                            max_len_b=args.max_len, min_len=args.min_len,
                                            no_repeat_ngram_size=3)
             for hypothesis in hypotheses_batch:
@@ -64,12 +64,13 @@ if __name__ == "__main__":
     PARSER = argparse.ArgumentParser()
     PARSER.add_argument("--checkpoint_path", type=str, help="checkpoint directory.")
     PARSER.add_argument("--checkpoint_type", type=str, default='checkpoint_best.pt', help="checkpoint type to use")
-    PARSER.add_argument("--data_path", type=str, help="cnn_dm-bin in training dataset.")
+    PARSER.add_argument("--data_path", type=str, default=None, help="cnn_dm-bin in training dataset.")
     PARSER.add_argument("--test_path", type=str, help="test source data")
     PARSER.add_argument("--output_file", type=str, default='test.hypo', help="output file.")
     PARSER.add_argument("--batch_size", type=int, default=32, help="batch size.")
     PARSER.add_argument("--max_len", type=int, default=120, help="max summary length.")
     PARSER.add_argument("--min_len", type=int, default=30, help="min summary length.")
     PARSER.add_argument("--beam_size", type=int, default=1, help="beam search size.")
+    PARSER.add_argument("--lenpen", type=float, default=2.0, help="length penality.")
     ARGS = PARSER.parse_args()
     main(ARGS)

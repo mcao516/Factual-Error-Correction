@@ -3,8 +3,8 @@ import nltk
 
 # nltk.download('punkt')
 
-pred_file_path = 'preds/iter_preds_bm1_cp6.hypo'
-tgt_file_path = '/home/mcao610/scratch/summarization/cnn_dm/iterative_files/test.target'
+pred_file_path = 'preds/xsum_preds_bm6.hypo'
+tgt_file_path = '/home/mcao610/scratch/summarization/XSum/fairseq_files/test.target'
 
 with open(pred_file_path) as pf, open(tgt_file_path) as tf:
     preds, tgts = [], []
