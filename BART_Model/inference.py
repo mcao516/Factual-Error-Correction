@@ -42,8 +42,16 @@ def main(args):
                                                    max_len_b=args.max_len, min_len=args.min_len,
                                                    no_repeat_ngram_size=3)
                 for hypothesis in hypotheses_batch:
-                    fout.write(hypothesis + '\n')
-                    fout.flush()
+                    if type(hypothesis) == type([]) and args.write_all:
+                        for h in hypothesis:
+                            fout.write(h + '\n')
+                            fout.flush()
+                    elif type(hypothesis) == type([]):
+                        fout.write(hypothesis[0] + '\n')
+                        fout.flush()
+                    else:
+                        fout.write(hypothesis + '\n')
+                        fout.flush()
                 slines = []
 
             slines.append(sline)
@@ -55,8 +63,16 @@ def main(args):
                                            max_len_b=args.max_len, min_len=args.min_len,
                                            no_repeat_ngram_size=3)
             for hypothesis in hypotheses_batch:
-                fout.write(hypothesis + '\n')
-                fout.flush()
+                if type(hypothesis) == type([]) and args.write_all:
+                    for h in hypothesis:
+                        fout.write(h + '\n')
+                        fout.flush()
+                elif type(hypothesis) == type([]):
+                    fout.write(hypothesis[0] + '\n')
+                    fout.flush()
+                else:
+                    fout.write(hypothesis + '\n')
+                    fout.flush()
 
 # python inference.py --checkpoint_path ~/scratch/BART_models/checkpoints_iter --checkpoint_type checkpoint1.pt --data_path ~/scratch/summarization/cnn_dm/iterative_files/cnn_dm-bin/ --test_path ~/scratch/summarization/cnn_dm/iterative_files/test.source --output_file preds/iter_preds_cp1.hypo --batch_size 64
 
@@ -72,5 +88,6 @@ if __name__ == "__main__":
     PARSER.add_argument("--min_len", type=int, default=30, help="min summary length.")
     PARSER.add_argument("--beam_size", type=int, default=1, help="beam search size.")
     PARSER.add_argument("--lenpen", type=float, default=2.0, help="length penality.")
+    PARSER.add_argument("--write_all", action='store_true', help="write all beam hypothesis.")
     ARGS = PARSER.parse_args()
     main(ARGS)
