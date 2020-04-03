@@ -10,4 +10,4 @@
 module load miniconda3
 source activate py37
 
-python inference.py --checkpoint_path ~/scratch/BART_models/bart.large.cnn --checkpoint_type model.pt --data_path ~/scratch/BART_models/bart.large.cnn --test_path /home/mcao610/scratch/summarization/cnn_dm/fairseq_files/train_rest.source --output_file preds/cnndm_train_rest_bm4_all.hypo --batch_size 24 --beam_size 4 --max_len 140 --min_len 55 --lenpen 2.0 --write_all
+python inference.py --checkpoint_path ~/scratch/BART_models/bart.large.xsum --checkpoint_type model.pt --data_path ~/scratch/BART_models/bart.large.xsum --test_path /home/mcao610/scratch/summarization/XSum/fairseq_files/train.source --output_file preds/xsum_train_bm6_all.hypo --batch_size 16 --beam_size 6 --max_len 60 --min_len 10 --lenpen 1.0 --write_all
