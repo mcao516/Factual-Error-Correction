@@ -118,9 +118,11 @@ def main(args):
     print(type_counts)
 
     if args.duplicate:
-        create_training_data(data_dict, args.source_fout, args.target_fout, args.metadata_fout, corruption_types, True)
+        print('Duplicate sample.')
+        create_training_data(data_dict, args.source_fout, args.target_fout, args.metadata_fout, corruption_types, True, args.ratio)
     else:
-        create_training_data(data_dict, args.source_fout, args.target_fout, args.metadata_fout, corruption_types, False)
+        print('No duplication.')
+        create_training_data(data_dict, args.source_fout, args.target_fout, args.metadata_fout, corruption_types, False, args.ratio)
 
 
 if __name__ == "__main__":
@@ -131,8 +133,7 @@ if __name__ == "__main__":
     PARSER.add_argument("--target_fout", type=str, help="target file: reference summary.")
     PARSER.add_argument("--metadata_fout", type=str, help="metadata file: corruption information.")
     PARSER.add_argument('--duplicate', action='store_true')
-    PARSER.add_argument('--clean_probability', default=0.5, type=float,
-                        help='probability of selecting clean summry.')
+    PARSER.add_argument('--ratio', default=0.5, type=float, help='probability of selecting clean summry.')
 
     # clean dateswp entswp negation numswp pronoun
     ARGS = PARSER.parse_args()
