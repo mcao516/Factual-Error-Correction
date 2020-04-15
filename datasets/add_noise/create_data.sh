@@ -21,7 +21,7 @@ cp $SCRATCH/summarization/cnn_dm/fairseq_files/$FILE_TYPE.target $SLURM_TMPDIR
 
 # 4. Launch your job, tell it to save the model in $SLURM_TMPDIR
 #    and look for the dataset into $SLURM_TMPDIR
-python create_data.py --source_file $SLURM_TMPDIR/$FILE_TYPE.source --target_file $SLURM_TMPDIR/$FILE_TYPE.target --augmentations entity_swap pronoun_swap date_swap number_swap negation --save_intermediate
+python create_data.py --source_file $SLURM_TMPDIR/$FILE_TYPE.source --target_file $SLURM_TMPDIR/$FILE_TYPE.target --augmentations entity_swap pronoun_swap date_swap number_swap --save_intermediate
 
 # 5. Copy whatever you want to save on $SCRATCH
 cp $SLURM_TMPDIR/*.jsonl $SCRATCH/summarization/cnn_dm/corrupted_files
