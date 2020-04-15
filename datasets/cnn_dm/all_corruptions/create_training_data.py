@@ -5,10 +5,10 @@ import argparse
 SEP_TOKEN = '</s>'
 
 
-def ctype_sampler_1(data):
+def ctype_sampler_1(data, clean_probability=0.5):
     """50% probability sample a clean summary; 50% uniformly sample a corrupted summary.
     """
-    if random.random() < 0.5:
+    if random.random() < clean_probability:
         sample_type = 'clean'
     else:
         types = list(data.keys())
@@ -32,7 +32,7 @@ def ctype_sampler_2(data):
     return samples
 
 
-def create_training_data(data_dict, source_file, target_file, metadata_file, corruption_types, duplicate=False):
+def create_training_data(data_dict, source_file, target_file, metadata_file, corruption_types, duplicate=False, prob=0.5):
     """Create training data. Half clean summaries and half sampling from other types.
 
     Arguments:
@@ -53,7 +53,7 @@ def create_training_data(data_dict, source_file, target_file, metadata_file, cor
             if duplicate:
                 sampled_types = ctype_sampler_2(data_dict[id])
             else:
-                sampled_types = ctype_sampler_1(data_dict[id])
+                sampled_types = ctype_sampler_1(data_dict[id], clean_probability=prob)
 
             for st in sampled_types:
                 corrputed = data_dict[id][st]['claim']
@@ -73,7 +73,7 @@ def create_training_data(data_dict, source_file, target_file, metadata_file, cor
 def read_data(file_type, corruption_types):
     """
     Arguments:
-        file_type {[type]} -- [description]
+        file_type {str} -- train, val & test
         corruption_types {[type]} -- [description]
 
     Returns:
@@ -131,6 +131,8 @@ if __name__ == "__main__":
     PARSER.add_argument("--target_fout", type=str, help="target file: reference summary.")
     PARSER.add_argument("--metadata_fout", type=str, help="metadata file: corruption information.")
     PARSER.add_argument('--duplicate', action='store_true')
+    PARSER.add_argument('--clean_probability', default=0.5, type=float,
+                        help='probability of selecting clean summry.')
 
     # clean dateswp entswp negation numswp pronoun
     ARGS = PARSER.parse_args()
