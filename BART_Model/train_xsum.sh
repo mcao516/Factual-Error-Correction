@@ -10,17 +10,17 @@
 module load miniconda3
 source activate py37
 
-DATA_PATH=/home/mcao610/scratch/summarization/XSum/fairseq_files/xsum-bin.zip
-BART_PATH=/home/mcao610/scratch/BART_models/bart.large.tar.gz
-SAVE_DIR=/home/mcao610/scratch/BART_models/checkpoints_xsum/
+DATA_PATH=/home/mcao610/scratch/summarization/XSum/fairseq_files_1/xsum-bin
+BART_PATH=/home/mcao610/scratch/BART_models/bart.large
+SAVE_DIR=/home/mcao610/scratch/BART_models/checkpoints_xsum1_retrain/
 
 # 2. Copy your dataset on the compute node
-cp $DATA_PATH $SLURM_TMPDIR
-cp $BART_PATH $SLURM_TMPDIR
+# cp $DATA_PATH $SLURM_TMPDIR
+# cp $BART_PATH $SLURM_TMPDIR
 
-# 3. Eventually unzip your dataset
-unzip $SLURM_TMPDIR/xsum-bin.zip -d $SLURM_TMPDIR
-tar -xvzf $SLURM_TMPDIR/bart.large.tar.gz -C $SLURM_TMPDIR
+# # 3. Eventually unzip your dataset
+# unzip $SLURM_TMPDIR/xsum-bin.zip -d $SLURM_TMPDIR
+# tar -xvzf $SLURM_TMPDIR/bart.large.tar.gz -C $SLURM_TMPDIR
 
 # 4. Launch your job, tell it to save the model in $SLURM_TMPDIR
 #    and look for the dataset into $SLURM_TMPDIR
@@ -30,8 +30,8 @@ LR=3e-05
 MAX_TOKENS=1024
 UPDATE_FREQ=4
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python ~/fairseq/train.py $SLURM_TMPDIR/xsum-bin \
-    --restore-file $SLURM_TMPDIR/bart.large \
+CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python ~/fairseq/train.py $DATA_PATH \
+    --restore-file $BART_PATH \
     --save-dir $SAVE_DIR \
     --max-tokens $MAX_TOKENS \
     --task translation \

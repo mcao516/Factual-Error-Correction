@@ -42,17 +42,21 @@ def main(args):
                                                    max_len_b=args.max_len, min_len=args.min_len,
                                                    no_repeat_ngram_size=3)
                 for hypothesis in hypotheses_batch:
-                    if type(hypothesis) == type([]) and args.write_all:
-                        for h in hypothesis:
-                            fout.write(h + '\n')
-                            fout.flush()
-                    elif type(hypothesis) == type([]):
-                        fout.write(hypothesis[0] + '\n')
-                        fout.flush()
-                    else:
-                        fout.write(hypothesis + '\n')
-                        fout.flush()
+                    fout.write(hypothesis + '\n')
+                    fout.flush()
                 slines = []
+                # for hypothesis in hypotheses_batch:
+                #     if type(hypothesis) == type([]) and args.write_all:
+                #         for h in hypothesis:
+                #             fout.write(h + '\n')
+                #             fout.flush()
+                #     elif type(hypothesis) == type([]):
+                #         fout.write(hypothesis[0] + '\n')
+                #         fout.flush()
+                #     else:
+                #         fout.write(hypothesis + '\n')
+                #         fout.flush()
+                # slines = []
 
             slines.append(sline)
             count += 1
@@ -63,16 +67,20 @@ def main(args):
                                            max_len_b=args.max_len, min_len=args.min_len,
                                            no_repeat_ngram_size=3)
             for hypothesis in hypotheses_batch:
-                if type(hypothesis) == type([]) and args.write_all:
-                    for h in hypothesis:
-                        fout.write(h + '\n')
-                        fout.flush()
-                elif type(hypothesis) == type([]):
-                    fout.write(hypothesis[0] + '\n')
-                    fout.flush()
-                else:
-                    fout.write(hypothesis + '\n')
-                    fout.flush()
+                fout.write(hypothesis + '\n')
+                fout.flush()
+
+            # for hypothesis in hypotheses_batch:
+            #     if type(hypothesis) == type([]) and args.write_all:
+            #         for h in hypothesis:
+            #             fout.write(h + '\n')
+            #             fout.flush()
+            #     elif type(hypothesis) == type([]):
+            #         fout.write(hypothesis[0] + '\n')
+            #         fout.flush()
+            #     else:
+            #         fout.write(hypothesis + '\n')
+            #         fout.flush()
 
 # python inference.py --checkpoint_path ~/scratch/BART_models/checkpoints_iter --checkpoint_type checkpoint1.pt --data_path ~/scratch/summarization/cnn_dm/iterative_files/cnn_dm-bin/ --test_path ~/scratch/summarization/cnn_dm/iterative_files/test.source --output_file preds/iter_preds_cp1.hypo --batch_size 64
 

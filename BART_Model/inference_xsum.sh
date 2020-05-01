@@ -8,6 +8,6 @@
 
 # 1. Create your environement locally
 module load miniconda3
-source activate py37
+source activate py_nlp
 
-python inference.py --checkpoint_path ~/scratch/BART_models/checkpoints_xsum --checkpoint_type checkpoint1.pt --data_path ~/scratch/summarization/XSum/fairseq_files/xsum-bin/ --test_path /home/mcao610/scratch/summarization/XSum/fairseq_files/test.source --output_file preds/xsum.hypo --batch_size 96 --beam_size 1 --max_len 60 --min_len 10 --lenpen 1.0
+python inference.py --checkpoint_path /home/mcao610/scratch/BART_models/checkpoints_xsum1_retrain/ --checkpoint_type checkpoint_last.pt --data_path ~/scratch/summarization/XSum/fairseq_files_1/xsum-bin --test_path /home/mcao610/scratch/summarization/XSum/fairseq_files/test.source --output_file preds/xsum1_reinference.hypo --batch_size 96 --beam_size 1 --max_len 60 --min_len 10 --lenpen 1.0

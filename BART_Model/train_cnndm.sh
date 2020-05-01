@@ -24,11 +24,11 @@ tar -xvzf $SLURM_TMPDIR/bart.large.tar.gz -C $SLURM_TMPDIR
 
 # 4. Launch your job, tell it to save the model in $SLURM_TMPDIR
 #    and look for the dataset into $SLURM_TMPDIR
-TOTAL_NUM_UPDATES=10000
+TOTAL_NUM_UPDATES=20000
 WARMUP_UPDATES=500
 LR=3e-05
 MAX_TOKENS=1024
-UPDATE_FREQ=4
+UPDATE_FREQ=8
 
 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python ~/fairseq/train.py $SLURM_TMPDIR/cnn_dm-bin \
     --restore-file $SLURM_TMPDIR/bart.large \

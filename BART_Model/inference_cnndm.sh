@@ -10,7 +10,7 @@
 module load miniconda3
 source activate py37
 
-# python inference.py --checkpoint_path /home/mcao610/scratch/BART_models/bart.large.cnn \
+#python inference.py --checkpoint_path /home/mcao610/scratch/BART_models/bart.large.cnn \
 #     --checkpoint_type model.pt \
 #     --data_path /home/mcao610/scratch/BART_models/bart.large.cnn \
 #     --test_path /home/mcao610/scratch/summarization/cnn_dm/fairseq_files/test.source \
@@ -21,24 +21,24 @@ source activate py37
 #     --min_len 55 \
 #     --lenpen 2.0;
 
-python inference.py --checkpoint_path /home/mcao610/scratch/BART_models/checkpoints_uni \
-     --checkpoint_type checkpoint_best_1.pt \
-     --data_path /home/mcao610/scratch/summarization/cnn_dm/corrupted_nodup_files/cnn_dm-bin/ \
-     --test_path /home/mcao610/scratch/summarization/cnn_dm/corrupted_nodup_files/test.source \
-     --output_file preds/TEST_corrupted_nodup.hypo \
-     --batch_size 96 \
-     --beam_size 1 \
-     --max_len 140 \
-     --min_len 55 \
-     --lenpen 2.0;
+#python inference.py --checkpoint_path /home/mcao610/scratch/BART_models/checkpoints_uni \
+#     --checkpoint_type checkpoint_best_1.pt \
+#     --data_path /home/mcao610/scratch/summarization/cnn_dm/corrupted_nodup_files/cnn_dm-bin/ \
+#     --test_path /home/mcao610/scratch/summarization/cnn_dm/corrupted_nodup_files/test.source \
+#     --output_file preds/TEST_corrupted_nodup.hypo \
+#     --batch_size 96 \
+#     --beam_size 1 \
+#     --max_len 140 \
+#     --min_len 55 \
+#     --lenpen 2.0;
 
-#python inference.py --checkpoint_path /home/mcao610/scratch/BART_models/checkpoints_cnndm_rate07 \
-#    --checkpoint_type checkpoint_best.pt \
-#    --data_path /home/mcao610/scratch/summarization/cnn_dm/corrupted_nodup_rate07/cnn_dm-bin/ \
-#    --test_path /home/mcao610/scratch/summarization/cnn_dm/corrupted_nodup_rate07/test.source \
-#    --output_file preds/cnndm_corrupted_rate07_bm4.hypo \
-#    --batch_size 12 \
-#    --beam_size 4 \
-#    --max_len 140 \
-#    --min_len 55 \
-#    --lenpen 2.0;
+python inference.py --checkpoint_path /home/mcao610/scratch/BART_models/checkpoints_cnndm_split1 \
+    --checkpoint_type checkpoint_best.pt \
+    --data_path /home/mcao610/scratch/summarization/cnn_dm/fairseq_files_1/cnn_dm-bin/ \
+    --test_path /home/mcao610/scratch/summarization/cnn_dm/fairseq_files/test.source \
+    --output_file preds/INFERENCE_TEST.hypo \
+    --batch_size 96 \
+    --beam_size 1 \
+    --max_len 140 \
+    --min_len 55 \
+    --lenpen 2.0;
