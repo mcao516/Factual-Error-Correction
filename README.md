@@ -12,11 +12,14 @@ Our code is organized into four subdirectories:
 * `model`: wrapper for the fariseq BART model for training.
 
 ## (1) Build Dataset
-To build the training dataset, first download the processed cnn-dailymail dataset from https://drive.google.com/file/d/1tqjxX5abjKOt9VS_nNiTvIGQlWl53iUm/view?usp=sharing. Unzip and save the downloaded files in `cnn-dailymail`.
+To build the training dataset, first download the processed cnn-dailymail dataset from [this link](https://drive.google.com/file/d/1tqjxX5abjKOt9VS_nNiTvIGQlWl53iUm/view?usp=sharing). Unzip and save the downloaded files in `cnn-dailymail`.
 
-Then, run the following code:
+Then, run the data creation bash to build the training data:
 
 ```
 cd build_dataset
 sh create_data.sh
 ```
+
+## (2) K2019
+The annotated cnn-dailymail test set from [Kryscinski et al. 2019 ACL paper](https://arxiv.org/pdf/1910.12840.pdf).
