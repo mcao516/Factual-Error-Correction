@@ -13,6 +13,4 @@
 *.tar.gz
 *.jsonl
 *.source
-*.target
-*.data
-datasets/cnn_dm/stories/*
+**/cnn-dailymail/
