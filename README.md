@@ -21,5 +21,8 @@ cd build_dataset
 sh create_data.sh
 ```
 
-## (2) K2019
+## (2) Model Training
+We use [BART](https://arxiv.org/abs/1910.13461) as our base model. To download and use BART model, follow the instructions [here](https://github.com/pytorch/fairseq/tree/master/examples/bart).
+
+## (3) K2019
 The annotated cnn-dailymail test set from [Kryscinski et al. 2019 ACL paper](https://arxiv.org/pdf/1910.12840.pdf).
