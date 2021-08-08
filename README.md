@@ -1,6 +1,6 @@
 # Factual Error Correction for Abstractive Summarization Models
 
-This directory contains code necessary to replicate the training and evaluation for the EMNLP 2020 paper ["Factual Error Correction for Abstractive Summarization Models"](https://arxiv.org/abs/2010.08712) (Meng Cao, Yue Dong, Jiapeng Wu and Jackie Chi Kit Cheung).
+This directory contains code necessary to replicate the training and evaluation for the EMNLP 2020 paper ["Factual Error Correction for Abstractive Summarization Models"](https://arxiv.org/abs/2010.08712) by Meng Cao, Yue Dong, Jiapeng Wu and Jackie Chi Kit Cheung.
 
 ## Directory Structure
 
